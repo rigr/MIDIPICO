@@ -16,8 +16,9 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/lib/usb_midi_host
     ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib
-    ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib/ring_buffer_lib # Aktualisierter Pfad
-    ${CMAKE_CURRENT_LIST_DIR}/lib/midi_device_multistream
+    ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib/ring_buffer_lib
+    ${CMAKE_CURRENT_LIST_DIR}/lib/Pico-PIO-USB
+    ${CMAKE_CURRENT_LIST_DIR}/lib/tinyusb/src
 )
 
 target_link_libraries(midipico PRIVATE
@@ -29,7 +30,6 @@ target_link_libraries(midipico PRIVATE
     usb_midi_host
     pio_midi_uart_lib
     ring_buffer_lib
-    midi_device_multistream
 )
 
 pico_add_extra_outputs(midipico)
