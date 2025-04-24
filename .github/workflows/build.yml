@@ -24,7 +24,7 @@ jobs:
 
     - name: Setup Pico SDK
       run: |
-        git clone https://github.com/raspberrypi/pico-sdk.git lib/pico-sdk
+        git clone https://github.com/raspberrypi/pico-sdk.git lib/pico-sdk || { sleep 5; git clone https://github.com/raspberrypi/pico-sdk.git lib/pico-sdk; }
         cd lib/pico-sdk
         git submodule update --init
         cd ../..
@@ -33,7 +33,7 @@ jobs:
 
     - name: Setup TinyUSB
       run: |
-        git clone https://github.com/hathach/tinyusb.git lib/tinyusb
+        git clone https://github.com/hathach/tinyusb.git lib/tinyusb || { sleep 5; git clone https://github.com/hathach/tinyusb.git lib/tinyusb; }
         cd lib/tinyusb
         git submodule update --init --recursive
         python3 tools/get_deps.py rp2040
@@ -41,19 +41,31 @@ jobs:
 
     - name: Setup Pico-PIO-USB
       run: |
-        git clone https://github.com/sekigon-gonnoc/Pico-PIO-USB.git lib/Pico-PIO-USB
+        git clone https://github.com/sekigon-gonnoc/Pico-PIO-USB.git lib/Pico-PIO-USB || { sleep 5; git clone https://github.com/sekigon-gonnoc/Pico-PIO-USB.git lib/Pico-PIO-USB; }
         cd lib/Pico-PIO-USB
         git submodule update --init
         cd ../..
 
-    - name: Setup rppicomidi libraries
+    - name: Setup pio_midi_uart_lib
       run: |
-        git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib
+        git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib || { sleep 5; git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib; }
         cd lib/pio_midi_uart_lib
         git submodule update --init --recursive
         cd ../..
-        git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host
-        git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream
+
+    - name: Setup usb_midi_host
+      run: |
+        git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host || { sleep 5; git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host; }
+        cd lib/usb_midi_host
+        git submodule update --init
+        cd ../..
+
+    - name: Setup midi_device_multistream
+      run: |
+        git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream || { sleep 5; git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream; }
+        cd lib/midi_device_multistream
+        git submodule update --init
+        cd ../..
 
     - name: Build project
       run: |
