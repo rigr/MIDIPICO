@@ -49,7 +49,9 @@ jobs:
     - name: Setup rppicomidi libraries
       run: |
         git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib
-        git clone https://github.com/rppicomidi/ring_buffer_lib.git lib/ring_buffer_lib
+        cd lib/pio_midi_uart_lib
+        git submodule update --init --recursive
+        cd ../..
         git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host
         git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream
 
