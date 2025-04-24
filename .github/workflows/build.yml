@@ -13,8 +13,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      with:
-        submodules: recursive
 
     - name: Install ARM toolchain and Python dependencies
       run: |
@@ -22,50 +20,16 @@ jobs:
         sudo apt-get install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib python3 python3-pip
         pip3 install requests
 
-    - name: Setup Pico SDK
+    - name: Setup TinyUSB dependencies
       run: |
-        git clone https://github.com/raspberrypi/pico-sdk.git lib/pico-sdk || { sleep 5; git clone https://github.com/raspberrypi/pico-sdk.git lib/pico-sdk; }
-        cd lib/pico-sdk
-        git submodule update --init
-        cd ../..
-        export PICO_SDK_PATH=$PWD/lib/pico-sdk
-        echo "PICO_SDK_PATH=$PWD/lib/pico-sdk" >> $GITHUB_ENV
-
-    - name: Setup TinyUSB
-      run: |
-        git clone https://github.com/hathach/tinyusb.git lib/tinyusb || { sleep 5; git clone https://github.com/hathach/tinyusb.git lib/tinyusb; }
         cd lib/tinyusb
-        git submodule update --init --recursive
         python3 tools/get_deps.py rp2040
         cd ../..
 
-    - name: Setup Pico-PIO-USB
+    - name: Set PICO_SDK_PATH
       run: |
-        git clone https://github.com/sekigon-gonnoc/Pico-PIO-USB.git lib/Pico-PIO-USB || { sleep 5; git clone https://github.com/sekigon-gonnoc/Pico-PIO-USB.git lib/Pico-PIO-USB; }
-        cd lib/Pico-PIO-USB
-        git submodule update --init
-        cd ../..
-
-    - name: Setup pio_midi_uart_lib
-      run: |
-        git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib || { sleep 5; git clone https://github.com/rppicomidi/pio_midi_uart_lib.git lib/pio_midi_uart_lib; }
-        cd lib/pio_midi_uart_lib
-        git submodule update --init --recursive
-        cd ../..
-
-    - name: Setup usb_midi_host
-      run: |
-        git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host || { sleep 5; git clone https://github.com/rppicomidi/usb_midi_host.git lib/usb_midi_host; }
-        cd lib/usb_midi_host
-        git submodule update --init
-        cd ../..
-
-    - name: Setup midi_device_multistream
-      run: |
-        git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream || { sleep 5; git clone https://github.com/rppicomidi/midi_device_multistream.git lib/midi_device_multistream; }
-        cd lib/midi_device_multistream
-        git submodule update --init
-        cd ../..
+        export PICO_SDK_PATH=$PWD/lib/pico-sdk
+        echo "PICO_SDK_PATH=$PICO_SDK_PATH" >> $GITHUB_ENV
 
     - name: Build project
       run: |
