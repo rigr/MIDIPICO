@@ -16,7 +16,7 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/lib/usb_midi_host
     ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib
-    ${CMAKE_CURRENT_LIST_DIR}/lib/ring_buffer_lib
+    ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib/ring_buffer_lib # Aktualisierter Pfad
     ${CMAKE_CURRENT_LIST_DIR}/lib/midi_device_multistream
 )
 
