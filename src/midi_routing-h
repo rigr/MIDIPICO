@@ -1,0 +1,11 @@
+#ifndef MIDI_ROUTING_H
+#define MIDI_ROUTING_H
+
+#include <stdint.h>
+
+void midi_routing_init(void);
+void midi_routing_add_device(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep);
+void midi_routing_forward(uint8_t *buffer, uint32_t len, uint8_t source_dev);
+void midi_routing_process(void);
+
+#endif
