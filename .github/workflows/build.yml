@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4 # Aktualisiere auch checkout auf v4
       with:
         submodules: recursive
 
@@ -59,7 +59,8 @@ jobs:
         make
 
     - name: Upload UF2 artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: midipico.uf2
         path: build/midipico.uf2
+        if-no-files-found: error # Fehler, wenn die Datei nicht gefunden wird
