@@ -5,6 +5,7 @@
 #include "tusb.h"
 #include "usb_midi_host.h"
 #include "pio_midi_uart_lib.h"
+#include "pio_usb.h"
 
 // Pin-Zuweisungen
 #define DIN_MIDI_RX_1 6  // GPIO 6 für DIN MIDI In 1
@@ -12,9 +13,43 @@
 #define DIN_MIDI_RX_3 8  // GPIO 8 für DIN MIDI In 3
 #define DIN_MIDI_RX_4 9  // GPIO 9 für DIN MIDI In 4
 
+#define USB_HOST_DP_1 10 // GPIO 10 für USB Host 1 D+
+#define USB_HOST_DP_2 12 // GPIO 12 für USB Host 2 D+
+
 // MIDI-Datenpuffer
 #define MIDI_BUFFER_SIZE 128
 uint8_t midi_buffer[MIDI_BUFFER_SIZE];
+
+// USB Host Konfigurationen (nur zwei Ports möglich)
+static pio_usb_configuration_t host_config1 = {
+    .pin_dp = USB_HOST_DP_1,
+    .pio_tx_num = 0,
+    .sm_tx = 0,
+    .tx_ch = 0,
+    .pio_rx_num = 1,
+    .sm_rx = 0,
+    .sm_eop = 1,
+    .alarm_pool = NULL,
+    .debug_pin_rx = -1,
+    .debug_pin_eop = -1,
+    .skip_alarm_pool = false,
+    .pinout = PIO_USB_PINOUT_DPDM,
+};
+
+static pio_usb_configuration_t host_config2 = {
+    .pin_dp = USB_HOST_DP_2,
+    .pio_tx_num = 0,
+    .sm_tx = 1,
+    .tx_ch = 1,
+    .pio_rx_num = 1,
+    .sm_rx = 2,
+    .sm_eop = 3,
+    .alarm_pool = NULL,
+    .debug_pin_rx = -1,
+    .debug_pin_eop = -1,
+    .skip_alarm_pool = false,
+    .pinout = PIO_USB_PINOUT_DPDM,
+};
 
 // DIN MIDI Konfiguration
 static pio_midi_uart_t *din_midi[4];
@@ -64,8 +99,12 @@ void core1_entry() {
 int main() {
     stdio_init_all();
 
-    // Debugging: Bestätige TinyUSB-Initialisierung
-    printf("Initializing TinyUSB...\n");
+    // Debugging: Bestätige Initialisierung
+    printf("Initializing TinyUSB and USB Host...\n");
+
+    // Initialisiere USB Host (zwei Ports)
+    pio_usb_host_init(&host_config1);
+    pio_usb_host_init(&host_config2);
 
     // Initialisiere USB (Device und Host)
     tusb_init();
