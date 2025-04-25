@@ -14,6 +14,7 @@
 // USB Host configuration
 #define CFG_TUH_ENABLED 1
 #define CFG_TUH_MAX_SPEED OPT_MODE_FULL_SPEED
+#define CFG_TUH_MIDI_ENABLED 1 // Explicitly enable MIDI host
 #define CFG_TUH_MIDI 2 // Support für zwei MIDI devices
 #define CFG_TUH_MIDI_RX_BUFSIZE 128
 #define CFG_TUH_MIDI_TX_BUFSIZE 128
