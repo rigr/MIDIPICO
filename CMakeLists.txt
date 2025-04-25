@@ -23,11 +23,8 @@ endif()
 # Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
-    pio_usb.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/tusb.c # Explizite Einbindung von tusb.c
 )
-
-# Generiere PIO-Header für usb_tx.pio
-pico_generate_pio_header(midipico ${CMAKE_CURRENT_SOURCE_DIR}/usb_tx.pio)
 
 # Include-Verzeichnisse für Bibliotheken
 target_include_directories(midipico PRIVATE
