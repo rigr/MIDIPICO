@@ -12,6 +12,7 @@ pico_sdk_init()
 set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
 set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb)
+set(INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Debugging: Verzeichnisinhalt ausgeben
 execute_process(COMMAND ls -la ${PICO_PIO_USB_PATH}
@@ -40,6 +41,7 @@ target_include_directories(midipico PRIVATE
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
     ${PICO_PIO_USB_PATH}
+    ${INCLUDE_PATH} # Neues include/-Verzeichnis
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
 )
 
