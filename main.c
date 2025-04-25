@@ -20,7 +20,7 @@
 #define MIDI_BUFFER_SIZE 128
 uint8_t midi_buffer[MIDI_BUFFER_SIZE];
 
-// USB Host Konfigurationen (nur zwei Ports möglich)
+// USB Host Konfigurationen (zwei Ports)
 static pio_usb_configuration_t host_config1 = {
     .pin_dp = USB_HOST_DP_1,
     .pio_tx_num = 0,
@@ -57,17 +57,15 @@ static pio_midi_uart_t *din_midi[4];
 // Funktion zum Senden von MIDI-Daten an alle Ausgänge
 void send_midi_to_all(uint8_t *data, uint32_t length) {
     // Sende an USB Guest
-    tud_midi_write(0, data, length);
+    tud_midi_write(data, length);
 
     // Sende an DIN MIDI Out
     for (int i = 0; i < 4; i++) {
         pio_midi_uart_write(din_midi[i], data, length);
     }
 
-    // Sende an USB Host (nur zwei Ports)
-    for (int port = 0; port < 2; port++) {
-        usb_midi_host_write(port, data, length);
-    }
+    // Sende an beide USB Host Ports
+    usb_midi_host_write(data, length);
 }
 
 // Core 1: Verarbeitet USB Host und DIN MIDI Eingänge
@@ -76,11 +74,13 @@ void core1_entry() {
         // USB Host Task
         tuh_task();
 
-        // Verarbeite USB Host MIDI Eingänge (nur zwei Ports)
+        // Verarbeite USB Host MIDI Eingänge (zwei Ports)
         for (int port = 0; port < 2; port++) {
             uint8_t rx_buf[MIDI_BUFFER_SIZE];
-            uint32_t rx_len = usb_midi_host_read(port, rx_buf, MIDI_BUFFER_SIZE);
+            // TODO: Benutzerdefinierte Logik für Port-Unterscheidung erforderlich
+            uint32_t rx_len = usb_midi_host_read(rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
+                printf("MIDI data received from USB Host Port %d: %d bytes\n", port, rx_len);
                 send_midi_to_all(rx_buf, rx_len);
             }
         }
@@ -90,6 +90,7 @@ void core1_entry() {
             uint8_t rx_buf[MIDI_BUFFER_SIZE];
             uint32_t rx_len = pio_midi_uart_read(din_midi[i], rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
+                printf("MIDI data received from DIN MIDI %d: %d bytes\n", i, rx_len);
                 send_midi_to_all(rx_buf, rx_len);
             }
         }
@@ -118,8 +119,9 @@ int main() {
     while (1) {
         tud_task();
         uint8_t rx_buf[MIDI_BUFFER_SIZE];
-        uint32_t rx_len = tud_midi_read(0, rx_buf, MIDI_BUFFER_SIZE);
+        uint32_t rx_len = tud_midi_read(rx_buf, MIDI_BUFFER_SIZE);
         if (rx_len > 0) {
+            printf("MIDI data received from USB Guest: %d bytes\n", rx_len);
             send_midi_to_all(rx_buf, rx_len);
         }
     }
