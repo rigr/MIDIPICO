@@ -43,7 +43,7 @@ jobs:
         export PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk
         mkdir build
         cd build
-        cmake ..
+        cmake .. -DPICO_SDK_PATH=$PICO_SDK_PATH
         make
 
     - name: Upload UF2 Artifact
