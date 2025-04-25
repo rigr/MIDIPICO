@@ -54,11 +54,11 @@ static uint8_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     return desc_str;
 }
 
-// MIDI-Datenpuffer
+// MIDI-Datenpuffer (für 8 Eingänge: 4 USB + 4 DIN)
 #define MIDI_BUFFER_SIZE 128
-static uint8_t midi_buffer[4][MIDI_BUFFER_SIZE]; // Puffer für 4 Eingänge
-static volatile uint8_t buffer_pos[4] = {0};
-static volatile bool buffer_ready[4] = {false};
+static uint8_t midi_buffer[8][MIDI_BUFFER_SIZE];
+static volatile uint8_t buffer_pos[8] = {0};
+static volatile bool buffer_ready[8] = {false};
 
 // USB-Host-Instanz
 usb_midi_host_t usb_midi_hosts[4];
@@ -77,20 +77,21 @@ void usb_midi_rx_callback(uint8_t host_idx, uint8_t *data, uint16_t len) {
 
 // Callback für DIN-MIDI-Daten
 void din_midi_rx_callback(uint8_t din_idx, uint8_t *data, uint16_t len) {
-    if (din_idx < 4 && buffer_pos[din_idx] + len < MIDI_BUFFER_SIZE) {
-        memcpy(&midi_buffer[din_idx][buffer_pos[din_idx]], data, len);
-        buffer_pos[din_idx] += len;
-        buffer_ready[din_idx] = true;
+    uint8_t buffer_idx = din_idx + 4; // DIN-MIDI ab Index 4
+    if (buffer_idx < 8 && buffer_pos[buffer_idx] + len < MIDI_BUFFER_SIZE) {
+        memcpy(&midi_buffer[buffer_idx][buffer_pos[buffer_idx]], data, len);
+        buffer_pos[buffer_idx] += len;
+        buffer_ready[buffer_idx] = true;
     }
 }
 
 // Funktion zum Weiterleiten der MIDI-Daten
 void forward_midi_data() {
-    for (uint8_t src = 0; src < 4; src++) {
+    for (uint8_t src = 0; src < 8; src++) {
         if (buffer_ready[src]) {
             // An alle USB-Hosts
             for (uint8_t dst = 0; dst < 4; dst++) {
-                if (dst != src) {
+                if (src != dst) { // Vermeide Schleifen bei USB-Hosts
                     usb_midi_host_write(&usb_midi_hosts[dst], midi_buffer[src], buffer_pos[src]);
                 }
             }
@@ -107,10 +108,16 @@ void forward_midi_data() {
 }
 
 void core1_entry() {
-    // USB-Host-Initialisierung mit PIO-USB
+    // USB-Host-Initialisierung mit PIO-USB für vier Ports
     pio_usb_configuration_t pio_cfg = PIO_USB_DEFAULT_CONFIG;
-    pio_cfg.pin_dp = 2; // Beispiel-Pin, anpassen an deine Hardware
+    pio_cfg.pin_dp = 10; // Basis-Pin für Port 1 (D+), D- ist +1
     pio_usb_host_init(&pio_cfg);
+
+    // Zusätzliche Ports initialisieren
+    for (uint8_t i = 1; i < 4; i++) {
+        pio_cfg.pin_dp = 10 + i * 2; // Pins 12, 14, 16 für Ports 2-4
+        pio_usb_host_add_port(&pio_cfg);
+    }
 
     while (true) {
         pio_usb_host_task();
@@ -122,9 +129,9 @@ int main() {
     stdio_init_all();
     tusb_init();
 
-    // DIN-MIDI-Initialisierung
+    // DIN-MIDI-Initialisierung (GPIO 6-9)
     for (uint8_t i = 0; i < 4; i++) {
-        pio_midi_uart_init(&din_midi[i], pio0, 6 + i, 31250, din_midi_rx_callback, i); // Pins 6-9
+        pio_midi_uart_init(&din_midi[i], pio0, 6 + i, 31250, din_midi_rx_callback, i);
     }
 
     // USB-MIDI-Host-Initialisierung
