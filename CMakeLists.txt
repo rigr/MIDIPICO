@@ -11,7 +11,7 @@ pico_sdk_init()
 # Pfade zu den Bibliotheken
 set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
-set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb)
+set(PICO_PIO_USB_PATH $ENV{GITHUB_WORKSPACE}/pico-sdk/lib/pico_pio_usb)
 
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
@@ -26,7 +26,7 @@ endif()
 
 add_executable(midipico
     main.c
-    ${PICO_PIO_USB_PATH}/pico_pio_usb.c # Korrigierter Pfad
+    ${PICO_PIO_USB_PATH}/pico_pio_usb.c
 )
 
 # Include-Verzeichnisse für Bibliotheken
@@ -34,7 +34,7 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
-    ${PICO_PIO_USB_PATH} # Korrigierter Include-Pfad
+    ${PICO_PIO_USB_PATH}
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
 )
 
