@@ -23,8 +23,15 @@ endif()
 # Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/tusb.c # Explizite Einbindung von tusb.c
+    pio_usb.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/tusb.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/common/tusb_fifo.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/device/dcd.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/host/hcd.c
 )
+
+# Generiere PIO-Header für usb_tx.pio
+pico_generate_pio_header(midipico ${CMAKE_CURRENT_SOURCE_DIR}/usb_tx.pio)
 
 # Include-Verzeichnisse für Bibliotheken
 target_include_directories(midipico PRIVATE
@@ -33,6 +40,7 @@ target_include_directories(midipico PRIVATE
     ${PIO_MIDI_UART_PATH}
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src # Für TinyUSB-Header
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb/src # Für Pico-PIO-USB-Header
 )
 
 # Debugging: Include-Pfade ausgeben
