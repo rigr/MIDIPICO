@@ -49,6 +49,11 @@ jobs:
         ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
         cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.h $GITHUB_WORKSPACE/
         cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.c $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb_configuration.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_definitions.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb_ll.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/sdk_compat.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_crc.h $GITHUB_WORKSPACE/
         cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_tx.pio $GITHUB_WORKSPACE/
         ls -la $GITHUB_WORKSPACE # Debugging: Zeige Inhalt des Projekt-Roots
 
@@ -65,7 +70,9 @@ jobs:
     - name: Build UF2
       run: |
         export PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk
+        export PICOTOOL_FETCH_FROM_GIT_PATH=$GITHUB_WORKSPACE/picotool
         echo "PICO_SDK_PATH=$PICO_SDK_PATH" # Debugging
+        echo "PICOTOOL_FETCH_FROM_GIT_PATH=$PICOTOOL_FETCH_FROM_GIT_PATH" # Debugging
         ls -la $PICO_SDK_PATH # Debugging
         mkdir build
         cd build
