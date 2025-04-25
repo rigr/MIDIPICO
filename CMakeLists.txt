@@ -11,6 +11,7 @@ pico_sdk_init()
 # Pfade zu den Bibliotheken (relativ zu CMAKE_CURRENT_SOURCE_DIR)
 set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
+set(PIO_USB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb)
 
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
@@ -18,6 +19,9 @@ if (NOT EXISTS ${USB_MIDI_HOST_PATH})
 endif()
 if (NOT EXISTS ${PIO_MIDI_UART_PATH})
     message(FATAL_ERROR "pio_midi_uart_lib directory not found at ${PIO_MIDI_UART_PATH}")
+endif()
+if (NOT EXISTS ${PIO_USB_PATH})
+    message(FATAL_ERROR "pico_pio_usb directory not found at ${PIO_USB_PATH}")
 endif()
 
 # Erstelle das ausführbare Programm
@@ -44,9 +48,8 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
-    ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src # Für TinyUSB-Header
-    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb/src # Für Pico-PIO-USB-Header
+    ${PIO_USB_PATH}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src
 )
 
 # Debugging: Include-Pfade ausgeben
