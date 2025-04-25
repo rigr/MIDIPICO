@@ -32,6 +32,8 @@ add_executable(midipico
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/class/midi/midi_device.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/device/usbd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/host/usbh.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/device/usbd_control.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/host/usbh_control.c
 )
 
 # Generiere PIO-Header für usb_tx.pio
