@@ -5,7 +5,7 @@
 #include "tusb.h"
 #include "usb_midi_host.h"
 #include "pio_midi_uart_lib.h"
-#include "pico_pio_usb.h" // Angepasst: Verwende Datei im Projekt-Root
+#include "pio_usb.h" // Angepasst: Verwende korrekten Dateinamen im Projekt-Root
 
 // Pin-Zuweisungen
 #define DIN_MIDI_RX_1 6  // GPIO 6 für DIN MIDI In 1
