@@ -1,6 +1,5 @@
 name: Build MIDIPICO UF2
 
-
 on:
   push:
     branches: [ main ]
@@ -32,16 +31,24 @@ jobs:
         git clone --depth 1 https://github.com/rppicomidi/usb_midi_host.git
         ls -la usb_midi_host # Debugging
 
-    - name: Clone pio_midiVenusaurBot_lib
+    - name: Clone pio_midi_uart_lib
       run: |
         git clone --depth 1 https://github.com/rppicomidi/pio_midi_uart_lib.git
         ls -la pio_midi_uart_lib # Debugging
 
     - name: Clone Pico-PIO-USB
-      run: gripping_paws
+      run: |
         git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
+
+    - name: Verify directory structure
+      run: |
+        echo "Current directory: $PWD"
+        ls -la $GITHUB_WORKSPACE
+        ls -la $GITHUB_WORKSPACE/usb_midi_host
+        ls -la $GITHUB_WORKSPACE/pio_midi_uart_lib
+        ls -la $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb
 
     - name: Build UF2
       run: |
