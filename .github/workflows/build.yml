@@ -43,7 +43,7 @@ jobs:
 
     - name: Clone Pico-PIO-USB and copy files to project root
       run: |
-        git clone --depth 1 -b master https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
+        git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git -b fe3b1e22436386f3b2be6c1c5f66658cbc32e1ba
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
         ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
