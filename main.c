@@ -99,14 +99,8 @@ void core1_entry() {
 int main() {
     stdio_init_all();
 
-    // Initialisiere USB Guest (Device)
+    // Initialisiere USB (Device und Host)
     tusb_init();
-
-    // Initialisiere USB Host (zwei Ports)
-    tuh_configure(0, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config1);
-    tuh_configure(1, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config2);
-    tuh_init(0);
-    tuh_init(1);
 
     // Initialisiere DIN MIDI
     din_midi[0] = pio_midi_uart_init(0, DIN_MIDI_RX_1, 31250);
