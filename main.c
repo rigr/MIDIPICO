@@ -5,7 +5,7 @@
 #include "tusb.h"
 #include "usb_midi_host.h"
 #include "pio_midi_uart_lib.h"
-#include "pio_usb.h" // Für pio_usb_configuration_t
+#include "pio_usb.h"
 
 // Pin-Zuweisungen
 #define DIN_MIDI_RX_1 6  // GPIO 6 für DIN MIDI In 1
@@ -14,9 +14,7 @@
 #define DIN_MIDI_RX_4 9  // GPIO 9 für DIN MIDI In 4
 
 #define USB_HOST_DP_1 10 // GPIO 10 für USB Host 1 D+
-#define USB_HOST_DM_1 11 // GPIO 11 für USB Host 1 D-
 #define USB_HOST_DP_2 12 // GPIO 12 für USB Host 2 D+
-#define USB_HOST_DM_2 13 // GPIO 13 für USB Host 2 D-
 
 // MIDI-Datenpuffer
 #define MIDI_BUFFER_SIZE 128
@@ -25,7 +23,6 @@ uint8_t midi_buffer[MIDI_BUFFER_SIZE];
 // USB Host Konfigurationen (nur zwei Ports möglich)
 static pio_usb_configuration_t host_config1 = {
     .pin_dp = USB_HOST_DP_1,
-    .pin_dn = USB_HOST_DM_1,
     .pio_tx_num = 0,
     .sm_tx = 0,
     .tx_ch = 0,
@@ -41,7 +38,6 @@ static pio_usb_configuration_t host_config1 = {
 
 static pio_usb_configuration_t host_config2 = {
     .pin_dp = USB_HOST_DP_2,
-    .pin_dn = USB_HOST_DM_2,
     .pio_tx_num = 0,
     .sm_tx = 1,
     .tx_ch = 1,
@@ -78,7 +74,7 @@ void send_midi_to_all(uint8_t *data, uint32_t length) {
 void core1_entry() {
     while (1) {
         // USB Host Task
-        usbh_task();
+        tuh_task();
 
         // Verarbeite USB Host MIDI Eingänge (nur zwei Ports)
         for (int port = 0; port < 2; port++) {
@@ -107,9 +103,10 @@ int main() {
     tusb_init();
 
     // Initialisiere USB Host (zwei Ports)
-    pio_usb_host_init(&host_config1);
-    pio_usb_host_init(&host_config2);
-    tuh_init();
+    tuh_configure(0, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config1);
+    tuh_configure(1, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config2);
+    tuh_init(0);
+    tuh_init(1);
 
     // Initialisiere DIN MIDI
     din_midi[0] = pio_midi_uart_init(0, DIN_MIDI_RX_1, 31250);
