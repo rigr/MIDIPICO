@@ -46,9 +46,10 @@ jobs:
         git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
-        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/pico_pio_usb.h $GITHUB_WORKSPACE/
-        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/pico_pio_usb.c $GITHUB_WORKSPACE/
-        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/usb_tx.pio $GITHUB_WORKSPACE/
+        ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pico_pio_usb.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pico_pio_usb.c $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_tx.pio $GITHUB_WORKSPACE/
         ls -la $GITHUB_WORKSPACE # Debugging: Zeige Inhalt des Projekt-Roots
 
     - name: Verify directory structure
@@ -59,6 +60,7 @@ jobs:
         ls -la $GITHUB_WORKSPACE/pio_midi_uart_lib
         ls -la $GITHUB_WORKSPACE/ring_buffer_lib
         ls -la $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb
+        ls -la $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src
 
     - name: Build UF2
       run: |
