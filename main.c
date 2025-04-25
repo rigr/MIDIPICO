@@ -27,11 +27,46 @@
 uint8_t midi_buffer[MIDI_BUFFER_SIZE];
 
 // USB Host Konfiguration
-static usb_host_config_t host_config = {
-    .dp_pins = {USB_HOST_DP_1, USB_HOST_DP_2, USB_HOST_DP_3, USB_HOST_DP_4},
-    .dm_pins = {USB_HOST_DM_1, USB_HOST_DM_2, USB_HOST_DM_3, USB_HOST_DM_4},
-    .num_ports = 4,
+// static usb_host_config_t host_config = {
+//    .dp_pins = {USB_HOST_DP_1, USB_HOST_DP_2, USB_HOST_DP_3, USB_HOST_DP_4},
+//    .dm_pins = {USB_HOST_DM_1, USB_HOST_DM_2, USB_HOST_DM_3, USB_HOST_DM_4},
+//    .num_ports = 4,
+// };
+static pio_usb_configuration_t host_config1 = {
+    .pin_dp = USB_HOST_DP_1,
+    .pio_tx_num = 0,
+    .sm_tx = 0,
+    .tx_ch = 0,
+    .pio_rx_num = 1,
+    .sm_rx = 0,
+    .sm_eop = 1,
+    .alarm_pool = NULL,
+    .debug_pin_rx = -1,
+    .debug_pin_eop = -1,
+    .skip_alarm_pool = false,
+    .pinout = PIO_USB_PINOUT_DPDM,
 };
+
+static pio_usb_configuration_t host_config2 = {
+    .pin_dp = USB_HOST_DP_2,
+    .pio_tx_num = 0,
+    .sm_tx = 1,
+    .tx_ch = 1,
+    .pio_rx_num = 1,
+    .sm_rx = 2,
+    .sm_eop = 3,
+    .alarm_pool = NULL,
+    .debug_pin_rx = -1,
+    .debug_pin_eop = -1,
+    .skip_alarm_pool = false,
+    .pinout = PIO_USB_PINOUT_DPDM,
+};
+tuh_configure(0, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config1);
+tuh_init(0);
+tuh_configure(1, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &host_config2);
+tuh_init(1);
+
+
 
 // DIN MIDI Konfiguration
 static pio_midi_uart_t *din_midi[4];
@@ -59,7 +94,8 @@ void core1_entry() {
         usbh_task();
 
         // Verarbeite USB Host MIDI Eingänge
-        for (int port = 0; port < host_config.num_ports; port++) {
+        // for (int port = 0; port < host_config.num_ports; port++) {
+            for (int port = 0; port < 2; port++) {
             uint8_t rx_buf[MIDI_BUFFER_SIZE];
             uint32_t rx_len = usb_midi_host_read(port, rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
@@ -85,7 +121,7 @@ int main() {
     tusb_init();
 
     // Initialisiere USB Host
-    usbh_init(&host_config);
+    // usbh_init(&host_config);
 
     // Initialisiere DIN MIDI
     din_midi[0] = pio_midi_uart_init(0, DIN_MIDI_RX_1, 31250);
