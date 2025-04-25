@@ -62,6 +62,8 @@ jobs:
         ls -la $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb/src # Debugging: Zeige TinyUSB-Quelldateien
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "tusb.h" # Debugging: Finde tusb.h
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "tusb.c" # Debugging: Finde tusb.c
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "dcd_rp2040.c" # Debugging: Finde dcd_rp2040.c
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "hcd_rp2040.c" # Debugging: Finde hcd_rp2040.c
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "*.c" # Debugging: Finde alle TinyUSB-Quelldateien
 
     - name: Verify directory structure
