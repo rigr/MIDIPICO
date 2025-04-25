@@ -3,6 +3,10 @@ if (NOT PICO_SDK_PATH)
     set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
 endif()
 
+if (NOT PICO_SDK_PATH)
+    message(FATAL_ERROR "PICO_SDK_PATH not set. Please set the environment variable PICO_SDK_PATH.")
+endif()
+
 if (NOT EXISTS ${PICO_SDK_PATH})
     message(FATAL_ERROR "PICO_SDK_PATH not found at ${PICO_SDK_PATH}")
 endif()
