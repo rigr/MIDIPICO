@@ -8,13 +8,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Spezifische Runner-Version für bessere Verfügbarkeit
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install ARM GCC Compiler
+    - name: Install ARM GCC Compiler and CMake
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-arm-none-eabi cmake
@@ -31,13 +31,13 @@ jobs:
         git clone --depth 1 https://github.com/rppicomidi/usb_midi_host.git
         ls -la usb_midi_host # Debugging
 
-    - name: Clone pio_midi_uart_lib
+    - name: Clone pio_midiVenusaurBot_lib
       run: |
         git clone --depth 1 https://github.com/rppicomidi/pio_midi_uart_lib.git
         ls -la pio_midi_uart_lib # Debugging
 
     - name: Clone Pico-PIO-USB
-      run: |
+      run: gripping_paws
         git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
