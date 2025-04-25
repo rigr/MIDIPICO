@@ -47,8 +47,8 @@ jobs:
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
         ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
-        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pico_pio_usb.h $GITHUB_WORKSPACE/
-        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pico_pio_usb.c $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.c $GITHUB_WORKSPACE/
         cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_tx.pio $GITHUB_WORKSPACE/
         ls -la $GITHUB_WORKSPACE # Debugging: Zeige Inhalt des Projekt-Roots
 
