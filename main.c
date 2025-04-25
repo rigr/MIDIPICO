@@ -102,10 +102,6 @@ int main() {
     // Debugging: Bestätige Initialisierung
     printf("Initializing TinyUSB and USB Host...\n");
 
-    // Initialisiere USB Host (zwei Ports)
-    pio_usb_host_init(&host_config1);
-    pio_usb_host_init(&host_config2);
-
     // Initialisiere USB (Device und Host)
     tusb_init();
 
