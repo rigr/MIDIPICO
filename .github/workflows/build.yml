@@ -67,6 +67,8 @@ jobs:
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "midi_device.c" # Debugging: Finde midi_device.c
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "usbd.c" # Debugging: Finde usbd.c
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "usbh.c" # Debugging: Finde usbh.c
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "usbd_control.c" # Debugging: Finde usbd_control.c
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "usbh_control.c" # Debugging: Finde usbh_control.c
         find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "*.c" # Debugging: Finde alle TinyUSB-Quelldateien
 
     - name: Verify directory structure
