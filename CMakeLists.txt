@@ -27,7 +27,8 @@ endif()
 # Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
-    pio_usb.c
+    # pio_usb.c
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/tusb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/common/tusb_fifo.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c
@@ -61,6 +62,8 @@ add_subdirectory(${PIO_MIDI_UART_PATH} pio_midi_uart_lib)
 
 target_link_libraries(midipico
     pico_stdlib
+    hardware_pio
+    pico_pio_usb            # <<-- sorgt dafür, dass PIO-USB aus dem SDK verknüpft wird
     pico_multicore
     tinyusb_device
     tinyusb_host
