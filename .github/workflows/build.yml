@@ -49,8 +49,9 @@ jobs:
 
     - name: Copy Pico-PIO-USB headers to include directory
       run: |
+        echo "Current working directory: $PWD" # Debugging
         mkdir -p include
-        cp pico-sdk/lib/pico_pio_usb/pico_pio_usb.h include/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/pico_pio_usb.h include/
         ls -la include # Debugging: Zeige Inhalt von include/
 
     - name: Verify directory structure
