@@ -3,108 +3,139 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "tusb.h"
-#include "pio_usb.h"
+#include "usb_midi_host.h"
 #include "pio_midi_uart_lib.h"
-#include "midi_routing.h"
+#include "pio_usb.h"
 
-// Pin-Belegung
-#define USB_HOST1_DP 2
-#define USB_HOST2_DP 4
-#define USB_HOST3_DP 6
-#define USB_HOST4_DP 8
-#define MIDI_DIN1_RX 10
-#define MIDI_DIN1_TX 11
-#define MIDI_DIN2_RX 12
-#define MIDI_DIN2_TX 13
-#define MIDI_DIN3_RX 14
-#define MIDI_DIN3_TX 15
-#define MIDI_DIN4_RX 16
-#define MIDI_DIN4_TX 17
+// USB-Guest-Deskriptoren für "MIDIPICO"
+#define USB_VID 0x2E8A // Raspberry Pi VID
+#define USB_PID 0x000A // Generisches PID
+static const char *midi_device_name = "MIDIPICO";
 
-// USB-Host-Konfiguration
-static pio_usb_configuration_t pio_usb_config = {
-    .pin_dp = USB_HOST1_DP,
-    .pio_idx = 0,
-    .sm_idx = 0,
-    .endpoint_pool_size = 8
+static const tusb_desc_device_t device_descriptor = {
+    .bLength = sizeof(tusb_desc_device_t),
+    .bDescriptorType = TUSB_DESC_DEVICE,
+    .bcdUSB = 0x0200,
+    .bDeviceClass = 0x00,
+    .bDeviceSubClass = 0x00,
+    .bDeviceProtocol = 0x00,
+    .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+    .idVendor = USB_VID,
+    .idProduct = USB_PID,
+    .bcdDevice = 0x0100,
+    .iManufacturer = 0x01,
+    .iProduct = 0x02,
+    .iSerialNumber = 0x03,
+    .bNumConfigurations = 0x01
 };
 
-// MIDI-UART-Konfiguration
-static midi_uart_t midi_din[4];
+// String-Deskriptoren
+static char *string_desc_arr[] = {
+    (char[]){0x09, 0x04}, // Sprache: US-Englisch
+    "Raspberry Pi",        // Hersteller
+    midi_device_name,      // Produktname
+    "1"                    // Seriennummer
+};
+
+static uint8_t *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
+    static uint8_t desc_str[32];
+    const char *str;
+    if (index == 0) {
+        memcpy(desc_str, string_desc_arr[0], 4);
+        return desc_str;
+    }
+    str = string_desc_arr[index];
+    uint8_t chr_count = strlen(str);
+    desc_str[0] = (TUSB_DESC_STRING << 8) | (2 * chr_count + 2);
+    for (uint8_t i = 0; i < chr_count; i++) {
+        desc_str[2 + i * 2] = str[i];
+        desc_str[3 + i * 2] = 0;
+    }
+    return desc_str;
+}
+
+// MIDI-Datenpuffer
+#define MIDI_BUFFER_SIZE 128
+static uint8_t midi_buffer[4][MIDI_BUFFER_SIZE]; // Puffer für 4 Eingänge
+static volatile uint8_t buffer_pos[4] = {0};
+static volatile bool buffer_ready[4] = {false};
 
 // USB-Host-Instanz
-static usb_host_t usb_host[4];
+usb_midi_host_t usb_midi_hosts[4];
 
-// Funktion zum Initialisieren der USB-Host-Schnittstellen
-void init_usb_host() {
-    for (int i = 0; i < 4; i++) {
-        pio_usb_config.pin_dp = USB_HOST1_DP + i * 2;
-        usb_host[i] = pio_usb_host_init(&pio_usb_config);
-        pio_usb_config.sm_idx += 4;
+// DIN-MIDI-Instanz
+pio_midi_uart_t din_midi[4];
+
+// Callback für USB-MIDI-Daten
+void usb_midi_rx_callback(uint8_t host_idx, uint8_t *data, uint16_t len) {
+    if (host_idx < 4 && buffer_pos[host_idx] + len < MIDI_BUFFER_SIZE) {
+        memcpy(&midi_buffer[host_idx][buffer_pos[host_idx]], data, len);
+        buffer_pos[host_idx] += len;
+        buffer_ready[host_idx] = true;
     }
 }
 
-// Funktion zum Initialisieren der DIN-MIDI-Schnittstellen
-void init_din_midi() {
-    uint rx_pins[4] = {MIDI_DIN1_RX, MIDI_DIN2_RX, MIDI_DIN3_RX, MIDI_DIN4_RX};
-    uint tx_pins[4] = {MIDI_DIN1_TX, MIDI_DIN2_TX, MIDI_DIN3_TX, MIDI_DIN4_TX};
-    for (int i = 0; i < 4; i++) {
-        midi_din[i] = midi_uart_init(PIO0, rx_pins[i], tx_pins[i], MIDI_UART_LIB_BAUD_RATE);
+// Callback für DIN-MIDI-Daten
+void din_midi_rx_callback(uint8_t din_idx, uint8_t *data, uint16_t len) {
+    if (din_idx < 4 && buffer_pos[din_idx] + len < MIDI_BUFFER_SIZE) {
+        memcpy(&midi_buffer[din_idx][buffer_pos[din_idx]], data, len);
+        buffer_pos[din_idx] += len;
+        buffer_ready[din_idx] = true;
     }
 }
 
-// Hauptfunktion für Core 1 (USB-Host-Verarbeitung)
-void core1_main() {
-    sleep_ms(10);
-    pio_usb_host_run();
+// Funktion zum Weiterleiten der MIDI-Daten
+void forward_midi_data() {
+    for (uint8_t src = 0; src < 4; src++) {
+        if (buffer_ready[src]) {
+            // An alle USB-Hosts
+            for (uint8_t dst = 0; dst < 4; dst++) {
+                if (dst != src) {
+                    usb_midi_host_write(&usb_midi_hosts[dst], midi_buffer[src], buffer_pos[src]);
+                }
+            }
+            // An alle DIN-MIDI
+            for (uint8_t dst = 0; dst < 4; dst++) {
+                pio_midi_uart_write(&din_midi[dst], midi_buffer[src], buffer_pos[src]);
+            }
+            // An USB-Guest
+            tud_midi_stream_write(0, midi_buffer[src], buffer_pos[src]);
+            buffer_pos[src] = 0;
+            buffer_ready[src] = false;
+        }
+    }
 }
 
-// Hauptprogramm
+void core1_entry() {
+    // USB-Host-Initialisierung mit PIO-USB
+    pio_usb_configuration_t pio_cfg = PIO_USB_DEFAULT_CONFIG;
+    pio_cfg.pin_dp = 2; // Beispiel-Pin, anpassen an deine Hardware
+    pio_usb_host_init(&pio_cfg);
+
+    while (true) {
+        pio_usb_host_task();
+        forward_midi_data();
+    }
+}
+
 int main() {
     stdio_init_all();
-    multicore_launch_core1(core1_main);
-
-    // Initialisiere TinyUSB
     tusb_init();
 
-    // Initialisiere USB-Host-Schnittstellen
-    init_usb_host();
+    // DIN-MIDI-Initialisierung
+    for (uint8_t i = 0; i < 4; i++) {
+        pio_midi_uart_init(&din_midi[i], pio0, 6 + i, 31250, din_midi_rx_callback, i); // Pins 6-9
+    }
 
-    // Initialisiere DIN-MIDI-Schnittstellen
-    init_din_midi();
+    // USB-MIDI-Host-Initialisierung
+    for (uint8_t i = 0; i < 4; i++) {
+        usb_midi_host_init(&usb_midi_hosts[i], i, usb_midi_rx_callback);
+    }
 
-    // Initialisiere MIDI-Routing
-    midi_routing_init();
+    multicore_launch_core1(core1_entry);
 
-    while (1) {
-        // Verarbeite USB-Device-Aufgaben
+    while (true) {
         tud_task();
-
-        // Verarbeite USB-Host-Aufgaben
-        for (int i = 0; i < 4; i++) {
-            pio_usb_host_task(&usb_host[i]);
-        }
-
-        // Verarbeite MIDI-Daten
-        midi_routing_process();
+        forward_midi_data();
     }
-
-    return 0;
-}
-
-// TinyUSB Callbacks
-void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep, uint8_t num_cables_rx, uint16_t num_cables_tx) {
-    midi_routing_add_device(dev_addr, in_ep, out_ep);
-}
-
-void tuh_midi_rx_cb(uint8_t dev_addr, uint32_t num_packets) {
-    uint8_t buffer[128];
-    uint32_t len = tud_midi_stream_read(buffer, sizeof(buffer));
-    if (len > 0) {
-        midi_routing_forward(buffer, len, dev_addr);
-    }
-}
-
-void tud_midi_tx_cb(uint8_t cable_num) {
-    // Nicht benötigt, da wir nur weiterleiten
 }
