@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-# Pfad zum pico-sdk setzen (wird im Workflow definiert)
-set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
-include(${PICO_SDK_PATH}/pico_sdk_import.cmake)
+# Lade pico_sdk_import.cmake aus dem Projektverzeichnis
+include(pico_sdk_import.cmake)
 
 project(midipico C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -22,6 +21,7 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
+    ${PICO_SDK_PATH}/lib/pico_pio_usb
 )
 
 # Bibliotheken hinzufügen
