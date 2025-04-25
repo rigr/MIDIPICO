@@ -43,7 +43,10 @@ jobs:
 
     - name: Clone Pico-PIO-USB and copy files to project root
       run: |
-        git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git -b fe3b1e22436386f3b2be6c1c5f66658cbc32e1ba
+        git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
+        cd Pico-PIO-USB
+        git checkout fe3b1e22436386f3b2be6c1c5f66658cbc32e1ba
+        cd ..
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
         ls -la pico-sdk/lib/pico_pio_usb # Debugging
         ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
@@ -100,7 +103,7 @@ jobs:
         make
 
     - name: Upload UF2 Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/checkout@v4
       with:
         name: midipico.uf2
         path: build/midipico.uf2
