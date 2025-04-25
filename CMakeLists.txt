@@ -26,7 +26,7 @@ endif()
 
 add_executable(midipico
     main.c
-    ${PICO_PIO_USB_PATH}/src/pico_pio_usb.c # Korrigierter Pfad
+    ${PICO_PIO_USB_PATH}/pico_pio_usb.c # Korrigierter Pfad
 )
 
 # Include-Verzeichnisse für Bibliotheken
@@ -34,7 +34,7 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
-    ${PICO_PIO_USB_PATH}/src # Korrigierter Include-Pfad
+    ${PICO_PIO_USB_PATH} # Korrigierter Include-Pfad
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
 )
 
