@@ -13,6 +13,11 @@ set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
 set(PICO_PIO_USB_PATH /home/runner/work/MIDIPICO/MIDIPICO/pico-sdk/lib/pico_pio_usb)
 
+# Debugging: Verzeichnisinhalt ausgeben
+execute_process(COMMAND ls -la ${PICO_PIO_USB_PATH}
+                OUTPUT_VARIABLE PICO_PIO_USB_CONTENTS)
+message("Inhalt von ${PICO_PIO_USB_PATH}:\n${PICO_PIO_USB_CONTENTS}")
+
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
     message(FATAL_ERROR "usb_midi_host directory not found at ${USB_MIDI_HOST_PATH}")
@@ -24,9 +29,9 @@ if (NOT EXISTS ${PICO_PIO_USB_PATH})
     message(FATAL_ERROR "pico_pio_usb directory not found at ${PICO_PIO_USB_PATH}")
 endif()
 
+# Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
-    ${PICO_PIO_USB_PATH}/pico_pio_usb.c
 )
 
 # Include-Verzeichnisse für Bibliotheken
@@ -41,6 +46,7 @@ target_include_directories(midipico PRIVATE
 # Bibliotheken hinzufügen
 add_subdirectory(${USB_MIDI_HOST_PATH} usb_midi_host)
 add_subdirectory(${PIO_MIDI_UART_PATH} pio_midi_uart_lib)
+add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb)
 
 target_link_libraries(midipico
     pico_stdlib
@@ -49,6 +55,7 @@ target_link_libraries(midipico
     tinyusb_host
     usb_midi_host
     pio_midi_uart_lib
+    pico_pio_usb
 )
 
 pico_enable_stdio_usb(midipico 0)
