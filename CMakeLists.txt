@@ -26,8 +26,9 @@ add_executable(midipico
     pio_usb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/tusb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/common/tusb_fifo.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/device/dcd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/host/hcd.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/hcd_rp2040.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c
 )
 
 # Generiere PIO-Header für usb_tx.pio
