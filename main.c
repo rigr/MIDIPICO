@@ -143,7 +143,7 @@ int main(void)
     tusb_init();
 
     // DIN-MIDI-Portpaare erzeugen
-    din_midi[0] = pio_midi_uart_create(DIN_MIDI_RX_1, DIN_MIDI_RX_1);
+    din_midi[0] = pio_midi_uart_create(DIN_MIDI_RX_1, DIN_MIDI_RX_1)
     din_midi[1] = pio_midi_uart_create(DIN_MIDI_RX_2, DIN_MIDI_RX_2);
     din_midi[2] = pio_midi_uart_create(DIN_MIDI_RX_3, DIN_MIDI_RX_3);
     din_midi[3] = pio_midi_uart_create(DIN_MIDI_RX_4, DIN_MIDI_RX_4);
