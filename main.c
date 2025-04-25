@@ -5,18 +5,9 @@
 #include "pico/multicore.h"
 
 #include "tusb.h"               // bindet tusb_config.h und alle TinyUSB-Headers ein
-#include "usb_midi_host.h"      // Host-Treiber (usb_midi_host App-Driver)
+#include "usb_midi_host.h"      // Host-Treiber (tuh_midi_*)
 #include "pio_midi_uart_lib.h"
-#include "pio_usb.h"
-
-// Fallback, falls pio_usb.h unvollständig sein sollte
-#ifndef USB_DEVICE_T
-#define USB_DEVICE_T
-typedef struct usb_device usb_device_t;
-#endif
-#ifndef PIO_USB_HOST_INIT
-usb_device_t *pio_usb_host_init(pio_usb_configuration_t *config);
-#endif
+#include "pio_usb.h"            // pio_usb_host_init() und usb_device_t kommen hierher
 
 // Pin-Zuweisungen
 #define DIN_MIDI_RX_1    6
@@ -28,7 +19,6 @@ usb_device_t *pio_usb_host_init(pio_usb_configuration_t *config);
 
 // MIDI-Puffer
 #define MIDI_BUFFER_SIZE 128
-static uint8_t midi_buffer[MIDI_BUFFER_SIZE];
 
 // USB-Host-Konfigurationen
 static pio_usb_configuration_t host_config1 = {
@@ -60,18 +50,18 @@ static pio_usb_configuration_t host_config2 = {
     .pinout      = PIO_USB_PINOUT_DPDM,
 };
 
-// DIN-MIDI
+// DIN-MIDI per PIO
 static pio_midi_uart_t *din_midi[4];
 
-// Gerätetracking für USB-Host-Ports
+// Aktive Host-Geräteadressen
 static uint8_t host1_dev_addr = 0;
 static uint8_t host2_dev_addr = 0;
 
-// Mount/Unmount Callbacks für USB-Host MIDI
+// Mount/Unmount-Callbacks für USB-Host MIDI
 void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep,
                        uint8_t num_cables_rx, uint16_t num_cables_tx)
 {
-    printf("MIDI device mounted, dev_addr=%d\n", dev_addr);
+    printf("MIDI device mounted, dev_addr=%u\n", dev_addr);
     if (!host1_dev_addr) {
         host1_dev_addr = dev_addr;
         printf("Assigned to Host Port 1\n");
@@ -85,28 +75,28 @@ void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep,
 
 void tuh_midi_umount_cb(uint8_t dev_addr)
 {
-    printf("MIDI device unmounted, dev_addr=%d\n", dev_addr);
+    printf("MIDI device unmounted, dev_addr=%u\n", dev_addr);
     if (host1_dev_addr == dev_addr) host1_dev_addr = 0;
     else if (host2_dev_addr == dev_addr) host2_dev_addr = 0;
 }
 
-// Sendet an alle Ausgänge
+// Verteilt einen empfangenen MIDI-Block an alle Ausgänge
 void send_midi_to_all(uint8_t *data, uint32_t length)
 {
     // USB-Device (Guest)
     tud_midi_write(data, length);
 
-    // DIN-MIDI  
+    // DIN-MIDI
     for (int i = 0; i < 4; i++) {
         pio_midi_uart_write(din_midi[i], data, length);
     }
 
-    // USB-Host Ports
+    // USB-Host-Ports
     if (host1_dev_addr) tuh_midi_write(host1_dev_addr, data, length);
     if (host2_dev_addr) tuh_midi_write(host2_dev_addr, data, length);
 }
 
-// Core 1: USB-Host + DIN-MIDI einlesen
+// Core 1: Polling für USB-Host + DIN-MIDI
 void core1_entry(void)
 {
     while (1) {
@@ -116,26 +106,17 @@ void core1_entry(void)
         // Host 1
         if (host1_dev_addr) {
             uint32_t rx_len = tuh_midi_read(host1_dev_addr, rx_buf, MIDI_BUFFER_SIZE);
-            if (rx_len) {
-                printf("Received from USB Host 1: %u bytes\n", rx_len);
-                send_midi_to_all(rx_buf, rx_len);
-            }
+            if (rx_len) send_midi_to_all(rx_buf, rx_len);
         }
         // Host 2
         if (host2_dev_addr) {
             uint32_t rx_len = tuh_midi_read(host2_dev_addr, rx_buf, MIDI_BUFFER_SIZE);
-            if (rx_len) {
-                printf("Received from USB Host 2: %u bytes\n", rx_len);
-                send_midi_to_all(rx_buf, rx_len);
-            }
+            if (rx_len) send_midi_to_all(rx_buf, rx_len);
         }
         // DIN-MIDI
         for (int i = 0; i < 4; i++) {
             uint32_t rx_len = pio_midi_uart_read(din_midi[i], rx_buf, MIDI_BUFFER_SIZE);
-            if (rx_len) {
-                printf("Received from DIN MIDI %d: %u bytes\n", i, rx_len);
-                send_midi_to_all(rx_buf, rx_len);
-            }
+            if (rx_len) send_midi_to_all(rx_buf, rx_len);
         }
     }
 }
@@ -145,7 +126,7 @@ int main(void)
     stdio_init_all();
     printf("Initializing TinyUSB and USB Host...\n");
 
-    // USB-Host initialisieren
+    // USB-Host starten
     if (!pio_usb_host_init(&host_config1)) {
         printf("Failed to init USB Host Port 1\n"); while (1);
     }
@@ -162,18 +143,15 @@ int main(void)
     din_midi[2] = pio_midi_uart_init(2, DIN_MIDI_RX_3, 31250);
     din_midi[3] = pio_midi_uart_init(3, DIN_MIDI_RX_4, 31250);
 
-    // Starte Core 1
+    // Launch Core 1
     multicore_launch_core1(core1_entry);
 
-    // Core 0: USB-Device (Guest) einlesen
+    // Core 0: Polling für USB-Device (Guest)
     while (1) {
         tud_task();
         uint8_t rx_buf[MIDI_BUFFER_SIZE];
         uint32_t rx_len = tud_midi_read(rx_buf, MIDI_BUFFER_SIZE);
-        if (rx_len) {
-            printf("Received from USB Guest: %u bytes\n", rx_len);
-            send_midi_to_all(rx_buf, rx_len);
-        }
+        if (rx_len) send_midi_to_all(rx_buf, rx_len);
     }
 
     return 0;
