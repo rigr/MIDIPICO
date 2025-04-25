@@ -1,1 +1,93 @@
-..
+name: Build MIDIPICO UF2
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install ARM GCC Compiler and CMake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-none-eabi cmake
+
+    - name: Clone pico-sdk
+      run: |
+        git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git
+        cd pico-sdk
+        git submodule update --init
+        ls -la # Debugging: Zeige Inhalt von pico-sdk
+
+    - name: Clone usb_midi_host
+      run: |
+        git clone --depth 1 https://github.com/rppicomidi/usb_midi_host.git
+        ls -la usb_midi_host # Debugging
+
+    - name: Clone pio_midi_uart_lib
+      run: |
+        git clone --depth 1 https://github.com/rppicomidi/pio_midi_uart_lib.git
+        ls -la pio_midi_uart_lib # Debugging
+
+    - name: Clone ring_buffer_lib
+      run: |
+        git clone --depth 1 https://github.com/rppicomidi/ring_buffer_lib.git
+        ls -la ring_buffer_lib # Debugging
+
+    - name: Clone Pico-PIO-USB and copy files to project root
+      run: |
+        git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
+        mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
+        ls -la pico-sdk/lib/pico_pio_usb # Debugging
+        ls -la pico-sdk/lib/pico_pio_usb/src # Debugging: Zeige Inhalt von src/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb.c $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb_configuration.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_definitions.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/pio_usb_ll.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/sdk_compat.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_crc.h $GITHUB_WORKSPACE/
+        cp $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb/src/usb_tx.pio $GITHUB_WORKSPACE/
+        ls -la $GITHUB_WORKSPACE # Debugging: Zeige Inhalt des Projekt-Roots
+
+    - name: Verify TinyUSB files
+      run: |
+        ls -la $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb/src # Debugging: Zeige TinyUSB-Quelldateien
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "tusb.h" # Debugging: Finde tusb.h
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "tusb.c" # Debugging: Finde tusb.c
+        find $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb -name "*.c" # Debugging: Finde alle TinyUSB-Quelldateien
+
+    - name: Verify directory structure
+      run: |
+        echo "Current directory: $PWD"
+        ls -la $GITHUB_WORKSPACE
+        ls -la $GITHUB_WORKSPACE/usb_midi_host
+        ls -la $GITHUB_WORKSPACE/pio_midi_uart_lib
+        ls -la $GITHUB_WORKSPACE/ring_buffer_lib
+        ls -la $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb
+        ls -la $GITHUB_WORKSPACE/pico-sdk/lib/tinyusb/src
+
+    - name: Build UF2
+      run: |
+        export PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk
+        export PICOTOOL_FETCH_FROM_GIT_PATH=$GITHUB_WORKSPACE/picotool
+        echo "PICO_SDK_PATH=$PICO_SDK_PATH" # Debugging
+        echo "PICOTOOL_FETCH_FROM_GIT_PATH=$PICOTOOL_FETCH_FROM_GIT_PATH" # Debugging
+        ls -la $PICO_SDK_PATH # Debugging
+        mkdir build
+        cd build
+        cmake .. -DPICO_SDK_PATH=$PICO_SDK_PATH
+        make
+
+    - name: Upload UF2 Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: midipico.uf2
+        path: build/midipico.uf2
