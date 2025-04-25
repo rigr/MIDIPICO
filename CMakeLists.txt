@@ -18,6 +18,10 @@ execute_process(COMMAND ls -la ${PICO_PIO_USB_PATH}
                 OUTPUT_VARIABLE PICO_PIO_USB_CONTENTS)
 message("Inhalt von ${PICO_PIO_USB_PATH}:\n${PICO_PIO_USB_CONTENTS}")
 
+# Debugging: Include-Pfade ausgeben
+get_target_property(INCLUDE_DIRS midipico INCLUDE_DIRECTORIES)
+message("Include-Pfade für midipico: ${INCLUDE_DIRS}")
+
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
     message(FATAL_ERROR "usb_midi_host directory not found at ${USB_MIDI_HOST_PATH}")
