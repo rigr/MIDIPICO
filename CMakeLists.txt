@@ -9,9 +9,20 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 # Pfade zu den Bibliotheken
-set(USB_MIDI_HOST_PATH ${CMAKE_SOURCE_DIR}/usb_midi_host)
-set(PIO_MIDI_UART_PATH ${CMAKE_SOURCE_DIR}/pio_midi_uart_lib)
+set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
+set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
 set(PICO_PIO_USB_PATH ${PICO_SDK_PATH}/lib/pico_pio_usb)
+
+# Prüfe, ob Bibliotheksverzeichnisse existieren
+if (NOT EXISTS ${USB_MIDI_HOST_PATH})
+    message(FATAL_ERROR "usb_midi_host directory not found at ${USB_MIDI_HOST_PATH}")
+endif()
+if (NOT EXISTS ${PIO_MIDI_UART_PATH})
+    message(FATAL_ERROR "pio_midi_uart_lib directory not found at ${PIO_MIDI_UART_PATH}")
+endif()
+if (NOT EXISTS ${PICO_PIO_USB_PATH})
+    message(FATAL_ERROR "pico_pio_usb directory not found at ${PICO_PIO_USB_PATH}")
+endif()
 
 add_executable(midipico
     main.c
@@ -23,6 +34,7 @@ target_include_directories(midipico PRIVATE
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
     ${PICO_PIO_USB_PATH}
+    ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h im Root-Verzeichnis
 )
 
 # Bibliotheken hinzufügen
