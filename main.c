@@ -5,7 +5,7 @@
 #include "pico/multicore.h"
 
 #include "tusb.h"               // bindet tusb_config.h und alle TinyUSB-Headers ein
-#include "usb_midi_host.h"      // Host-Treiber (tuh_midi_*)
+#include "usb_midi_host.h"      // Host-Treiber (tuh_*)
 #include "pio_midi_uart_lib.h"
 #include "pio_usb.h"            // pio_usb_host_init() und usb_device_t kommen hierher
 
@@ -57,9 +57,12 @@ static pio_midi_uart_t *din_midi[4];
 static uint8_t host1_dev_addr = 0;
 static uint8_t host2_dev_addr = 0;
 
-// Mount/Unmount-Callbacks für USB-Host MIDI
-void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep,
-                       uint8_t num_cables_rx, uint16_t num_cables_tx)
+// Mount-Callback (5 Parameter, wie im Header deklariert)
+void tuh_midi_mount_cb(uint8_t dev_addr,
+                       uint8_t in_ep,
+                       uint8_t out_ep,
+                       uint8_t num_cables_rx,
+                       uint16_t num_cables_tx)
 {
     printf("MIDI device mounted, dev_addr=%u\n", dev_addr);
     if (!host1_dev_addr) {
@@ -73,9 +76,10 @@ void tuh_midi_mount_cb(uint8_t dev_addr, uint8_t in_ep, uint8_t out_ep,
     }
 }
 
-void tuh_midi_umount_cb(uint8_t dev_addr)
+// Unmount-Callback jetzt mit 2 Parametern (dev_addr, instance)
+void tuh_midi_umount_cb(uint8_t dev_addr, uint8_t instance)
 {
-    printf("MIDI device unmounted, dev_addr=%u\n", dev_addr);
+    printf("MIDI device unmounted, dev_addr=%u, instance=%u\n", dev_addr, instance);
     if (host1_dev_addr == dev_addr) host1_dev_addr = 0;
     else if (host2_dev_addr == dev_addr) host2_dev_addr = 0;
 }
@@ -143,7 +147,7 @@ int main(void)
     din_midi[2] = pio_midi_uart_init(2, DIN_MIDI_RX_3, 31250);
     din_midi[3] = pio_midi_uart_init(3, DIN_MIDI_RX_4, 31250);
 
-    // Launch Core 1
+    // Core 1 starten
     multicore_launch_core1(core1_entry);
 
     // Core 0: Polling für USB-Device (Guest)
