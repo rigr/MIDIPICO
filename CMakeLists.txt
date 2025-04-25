@@ -11,7 +11,7 @@ pico_sdk_init()
 # Pfade zu den Bibliotheken
 set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
-set(PICO_PIO_USB_PATH $ENV{GITHUB_WORKSPACE}/pico-sdk/lib/pico_pio_usb)
+set(PICO_PIO_USB_PATH /home/runner/work/MIDIPICO/MIDIPICO/pico-sdk/lib/pico_pio_usb)
 
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
