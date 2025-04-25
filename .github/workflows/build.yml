@@ -36,6 +36,11 @@ jobs:
         git clone --depth 1 https://github.com/rppicomidi/pio_midi_uart_lib.git
         ls -la pio_midi_uart_lib # Debugging
 
+    - name: Clone ring_buffer_lib
+      run: |
+        git clone --depth 1 https://github.com/rppicomidi/ring_buffer_lib.git
+        ls -la ring_buffer_lib # Debugging
+
     - name: Clone Pico-PIO-USB
       run: |
         git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
@@ -48,6 +53,7 @@ jobs:
         ls -la $GITHUB_WORKSPACE
         ls -la $GITHUB_WORKSPACE/usb_midi_host
         ls -la $GITHUB_WORKSPACE/pio_midi_uart_lib
+        ls -la $GITHUB_WORKSPACE/ring_buffer_lib
         ls -la $GITHUB_WORKSPACE/pico-sdk/lib/pico_pio_usb
 
     - name: Build UF2
