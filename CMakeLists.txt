@@ -11,6 +11,7 @@ pico_sdk_init()
 # Pfade zu den Bibliotheken
 set(USB_MIDI_HOST_PATH ${CMAKE_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_SOURCE_DIR}/pio_midi_uart_lib)
+set(PICO_PIO_USB_PATH ${PICO_SDK_PATH}/lib/pico_pio_usb)
 
 add_executable(midipico
     main.c
@@ -21,12 +22,13 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
-    ${PICO_SDK_PATH}/lib/pico_pio_usb
+    ${PICO_PIO_USB_PATH}
 )
 
 # Bibliotheken hinzufügen
 add_subdirectory(${USB_MIDI_HOST_PATH} usb_midi_host)
 add_subdirectory(${PIO_MIDI_UART_PATH} pio_midi_uart_lib)
+add_subdirectory(${PICO_PIO_USB_PATH} pico_pio_usb)
 
 target_link_libraries(midipico
     pico_stdlib
