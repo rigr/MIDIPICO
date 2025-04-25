@@ -99,6 +99,9 @@ void core1_entry() {
 int main() {
     stdio_init_all();
 
+    // Debugging: Bestätige TinyUSB-Initialisierung
+    printf("Initializing TinyUSB...\n");
+
     // Initialisiere USB (Device und Host)
     tusb_init();
 
