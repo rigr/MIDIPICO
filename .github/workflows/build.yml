@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # Spezifische Runner-Version für bessere Verfügbarkeit
 
     steps:
     - name: Checkout repository
@@ -17,30 +17,36 @@ jobs:
     - name: Install ARM GCC Compiler
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-arm-none-eabi
+        sudo apt-get install -y gcc-arm-none-eabi cmake
 
     - name: Clone pico-sdk
       run: |
         git clone --depth 1 https://github.com/raspberrypi/pico-sdk.git
         cd pico-sdk
         git submodule update --init
+        ls -la # Debugging: Zeige Inhalt von pico-sdk
 
     - name: Clone usb_midi_host
       run: |
         git clone --depth 1 https://github.com/rppicomidi/usb_midi_host.git
+        ls -la usb_midi_host # Debugging
 
     - name: Clone pio_midi_uart_lib
       run: |
         git clone --depth 1 https://github.com/rppicomidi/pio_midi_uart_lib.git
+        ls -la pio_midi_uart_lib # Debugging
 
     - name: Clone Pico-PIO-USB
       run: |
         git clone --depth 1 https://github.com/sekigon-gonnoc/Pico-PIO-USB.git
         mv Pico-PIO-USB pico-sdk/lib/pico_pio_usb
+        ls -la pico-sdk/lib/pico_pio_usb # Debugging
 
     - name: Build UF2
       run: |
         export PICO_SDK_PATH=$GITHUB_WORKSPACE/pico-sdk
+        echo "PICO_SDK_PATH=$PICO_SDK_PATH" # Debugging
+        ls -la $PICO_SDK_PATH # Debugging
         mkdir build
         cd build
         cmake .. -DPICO_SDK_PATH=$PICO_SDK_PATH
