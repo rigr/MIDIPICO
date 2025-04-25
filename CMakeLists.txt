@@ -26,7 +26,7 @@ endif()
 
 add_executable(midipico
     main.c
-    ${PICO_PIO_USB_PATH}/pico_pio_usb.c # Direkt einbinden
+    ${PICO_PIO_USB_PATH}/src/pico_pio_usb.c # Korrigierter Pfad
 )
 
 # Include-Verzeichnisse für Bibliotheken
@@ -34,14 +34,13 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
-    ${PICO_PIO_USB_PATH}
+    ${PICO_PIO_USB_PATH}/src # Korrigierter Include-Pfad
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
 )
 
 # Bibliotheken hinzufügen
 add_subdirectory(${USB_MIDI_HOST_PATH} usb_midi_host)
 add_subdirectory(${PIO_MIDI_UART_PATH} pio_midi_uart_lib)
-# Pico-PIO-USB hat keine eigene CMakeLists.txt, daher nicht als Unterverzeichnis hinzufügen
 
 target_link_libraries(midipico
     pico_stdlib
