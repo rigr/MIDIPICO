@@ -26,7 +26,7 @@ pico_generate_pio_header(midipico ${CMAKE_CURRENT_SOURCE_DIR}/usb_tx.pio)
 # Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
-    pico_pio_usb.c
+    pio_usb.c
 )
 
 # Include-Verzeichnisse für Bibliotheken
