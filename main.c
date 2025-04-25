@@ -7,6 +7,15 @@
 #include "pio_midi_uart_lib.h"
 #include "pio_usb.h"
 
+// Fallback declarations if pio_usb.h is incomplete
+#ifndef USB_DEVICE_T
+#define USB_DEVICE_T
+typedef struct usb_device usb_device_t;
+#endif
+#ifndef PIO_USB_HOST_INIT
+usb_device_t *pio_usb_host_init(pio_usb_configuration_t *config);
+#endif
+
 // Pin-Zuweisungen
 #define DIN_MIDI_RX_1 6  // GPIO 6 für DIN MIDI In 1
 #define DIN_MIDI_RX_2 7  // GPIO 7 für DIN MIDI In 2
