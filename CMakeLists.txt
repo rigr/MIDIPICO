@@ -8,19 +8,15 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
-# Pfade zu den Bibliotheken
+# Pfade zu den Bibliotheken (relativ zu CMAKE_CURRENT_SOURCE_DIR)
 set(USB_MIDI_HOST_PATH ${CMAKE_CURRENT_SOURCE_DIR}/usb_midi_host)
 set(PIO_MIDI_UART_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pio_midi_uart_lib)
-set(PICO_PIO_USB_PATH /home/runner/work/MIDIPICO/MIDIPICO/pico-sdk/lib/pico_pio_usb)
+set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/pico_pio_usb)
 
 # Debugging: Verzeichnisinhalt ausgeben
 execute_process(COMMAND ls -la ${PICO_PIO_USB_PATH}
                 OUTPUT_VARIABLE PICO_PIO_USB_CONTENTS)
 message("Inhalt von ${PICO_PIO_USB_PATH}:\n${PICO_PIO_USB_CONTENTS}")
-
-# Debugging: Include-Pfade ausgeben
-get_target_property(INCLUDE_DIRS midipico INCLUDE_DIRECTORIES)
-message("Include-Pfade für midipico: ${INCLUDE_DIRS}")
 
 # Prüfe, ob Bibliotheksverzeichnisse existieren
 if (NOT EXISTS ${USB_MIDI_HOST_PATH})
@@ -46,6 +42,10 @@ target_include_directories(midipico PRIVATE
     ${PICO_PIO_USB_PATH}
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
 )
+
+# Debugging: Include-Pfade ausgeben (nach Zieldefinition)
+get_target_property(INCLUDE_DIRS midipico INCLUDE_DIRECTORIES)
+message("Include-Pfade für midipico: ${INCLUDE_DIRS}")
 
 # Bibliotheken hinzufügen
 add_subdirectory(${USB_MIDI_HOST_PATH} usb_midi_host)
