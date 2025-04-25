@@ -20,14 +20,14 @@ if (NOT EXISTS ${PIO_MIDI_UART_PATH})
     message(FATAL_ERROR "pio_midi_uart_lib directory not found at ${PIO_MIDI_UART_PATH}")
 endif()
 
-# Generiere PIO-Header für usb_tx.pio
-pico_generate_pio_header(midipico ${CMAKE_CURRENT_SOURCE_DIR}/usb_tx.pio)
-
 # Erstelle das ausführbare Programm
 add_executable(midipico
     main.c
     pio_usb.c
 )
+
+# Generiere PIO-Header für usb_tx.pio
+pico_generate_pio_header(midipico ${CMAKE_CURRENT_SOURCE_DIR}/usb_tx.pio)
 
 # Include-Verzeichnisse für Bibliotheken
 target_include_directories(midipico PRIVATE
