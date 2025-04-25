@@ -35,9 +35,10 @@ target_include_directories(midipico PRIVATE
     ${USB_MIDI_HOST_PATH}
     ${PIO_MIDI_UART_PATH}
     ${CMAKE_CURRENT_LIST_DIR} # Für tusb_config.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/pico-sdk/lib/tinyusb/src # Für TinyUSB-Header
 )
 
-# Debugging: Include-Pfade ausgeben (nach Zieldefinition)
+# Debugging: Include-Pfade ausgeben
 get_target_property(INCLUDE_DIRS midipico INCLUDE_DIRECTORIES)
 message("Include-Pfade für midipico: ${INCLUDE_DIRS}")
 
