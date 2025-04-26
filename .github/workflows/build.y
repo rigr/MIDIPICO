@@ -14,13 +14,17 @@ jobs:
         fetch-depth: 0
     - name: Update Submodules
       run: |
+        git submodule sync
         git submodule update --init --recursive --force
+        git submodule foreach git checkout main
+        git submodule foreach git pull origin main
     - name: Debug Submodules
       run: |
         ls -la lib/
         ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
         ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
         ls -la lib/pio_midi_uart_lib || echo "pio_midi_uart_lib directory missing or empty"
+        find lib/pio_midi_uart_lib -type f
         git submodule status
     - name: Install dependencies
       run: |
