@@ -11,9 +11,10 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
     - name: Update Submodules
       run: |
-        git submodule update --init --recursive
+        git submodule update --init --recursive --force
     - name: Debug Submodules
       run: |
         ls -la lib/
