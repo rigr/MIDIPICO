@@ -4,7 +4,7 @@ project(midipico C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
-add_subdirectory(lib/tinyusb)
+add_subdirectory(lib/tinyusb/src)
 add_subdirectory(lib/pio_midi_uart_lib)
 add_subdirectory(lib/ring_buffer_lib)
 add_executable(midipico
