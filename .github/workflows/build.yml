@@ -18,9 +18,11 @@ jobs:
         git submodule update --init --recursive --force
         # Spezifische Branch-Checkouts für Submodule
         cd lib/pico-sdk && git checkout master && cd ../..
-        cd lib/pio_midi_uart_lib && git checkout main && cd ../..
         cd lib/ring_buffer_lib && git checkout main && cd ../..
         cd lib/tinyusb && git checkout master && cd ../..
+        # Verwende lokalen Commit für pio_midi_uart_lib
+        cd lib/pio_midi_uart_lib && git checkout 7c7a5f04239ba61bbfc17897aae6da78edf3daaa || echo "Failed to checkout 7c7a5f04239ba61bbfc17897aae6da78edf3daaa"
+        cd ../..
     - name: Debug Submodules
       run: |
         ls -la lib/
@@ -31,6 +33,7 @@ jobs:
         cat lib/pio_midi_uart_lib/CMakeLists.txt
         cat CMakeLists.txt
         git submodule status
+        cd lib/pio_midi_uart_lib && git log -1 && cd ../..
     - name: Install dependencies
       run: |
         sudo apt update
