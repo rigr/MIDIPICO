@@ -11,10 +11,8 @@
 // Globale Variablen
 static uint8_t host1_dev_addr = 0; // Geräteadresse für Host 1
 
-// Callback für MIDI-Daten (Platzhalter)
+// Callback für MIDI-Daten
 void tuh_midi_rx_cb(uint8_t dev_addr, uint32_t num_packets) {
-    // Wird aufgerufen, wenn MIDI-Daten empfangen werden
-    // Hier kannst du die Geräteadresse speichern
     if (dev_addr && !host1_dev_addr) {
         host1_dev_addr = dev_addr;
     }
@@ -27,19 +25,15 @@ void core1_entry(void) {
         if (host1_dev_addr) {
             uint32_t rx_len = tuh_midi_receive(host1_dev_addr, rx_buf, MIDI_BUFFER_SIZE, true);
             if (rx_len > 0) {
-                // MIDI-Daten verarbeiten (z. B. weiterleiten)
                 tuh_midi_packet_write(host1_dev_addr, rx_buf, rx_len);
             }
         }
-        sleep_ms(1); // CPU entlasten
+        sleep_ms(1);
     }
 }
 
 int main() {
-    // Standard-Initialisierung
     stdio_init_all();
-    
-    // TinyUSB initialisieren
     tusb_init();
 
     // DIN MIDI UARTs initialisieren
@@ -54,14 +48,12 @@ int main() {
     uint8_t rx_buf[MIDI_BUFFER_SIZE];
 
     while (true) {
-        // TinyUSB Host-Task ausführen
         tuh_task();
 
         // USB-MIDI-Daten von zwei Geräten lesen
         for (int dev = 0; dev < 2; dev++) {
             uint32_t rx_len = tuh_midi_receive(dev, rx_buf, MIDI_BUFFER_SIZE, true);
             if (rx_len > 0) {
-                // MIDI-Daten verarbeiten (z. B. weiterleiten)
                 tuh_midi_packet_write(dev, rx_buf, rx_len);
             }
         }
