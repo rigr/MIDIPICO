@@ -7,7 +7,7 @@ pico_sdk_init()
 
 # Subdirectories
 add_subdirectory(lib/tinyusb/src)
-add_subdirectory(lib/pio_midi_uart_lib)
+add_subdirectory(lib/local_pio_midi_uart)
 add_subdirectory(lib/ring_buffer_lib)
 
 # Executable
@@ -18,7 +18,7 @@ add_executable(midipico
 # Include directories
 target_include_directories(midipico PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
-    ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib
+    ${CMAKE_CURRENT_LIST_DIR}/lib/local_pio_midi_uart
     ${CMAKE_CURRENT_LIST_DIR}/lib/ring_buffer_lib
     ${CMAKE_CURRENT_LIST_DIR}/lib/tinyusb/src
 )
@@ -40,4 +40,4 @@ target_link_libraries(midipico PUBLIC
 pico_add_extra_outputs(midipico)
 
 # Generate PIO header
-pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib/pio_midi_uart.pio)
+pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/lib/local_pio_midi_uart/pio_midi_uart.pio)
