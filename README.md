@@ -1,6 +1,6 @@
 # MIDIPICO
 
-MIDIPICO ist ein MIDI-Interface-Projekt für den Raspberry Pi Pico, das vier USB-MIDI-Host-Schnittstellen, vier DIN-MIDI-Schnittstellen und eine USB-Guest-Schnittstelle (als „MIDIPICO“ erkannt) bereitstellt. Es leitet MIDI-Daten von allen Eingängen an alle Ausgänge weiter. Der Build-Prozess erfolgt über GitHub Actions, und die Firmware wird als `.uf2`-Datei generiert.
+MIDIPICO ist ein MIDI-Interface-Projekt für den Raspberry Pi Pico, das zwei USB-MIDI-Host-Schnittstellen, eine USB-device-Schnittstelle und vier DIN-MIDI-Schnittstellen bereitstellt. Es leitet MIDI-Daten von allen Eingängen an alle Ausgänge weiter. Der Build-Prozess erfolgt über GitHub Actions, und die Firmware wird als `.uf2`-Datei generiert.
 
 ## Pinbelegung
 
