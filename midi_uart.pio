@@ -1,0 +1,6 @@
+.program midi_uart
+    set pindirs, 1
+    pull
+    out pins, 1
+    wait 0 pin 0
+    in pins, 1
