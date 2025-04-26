@@ -16,6 +16,8 @@ jobs:
         sudo apt update
         sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libusb-1.0-0-dev pkg-config
     - name: Build
+      env:
+        PICO_SDK_PATH: ${{ github.workspace }}/lib/pico-sdk
       run: |
         mkdir build
         cd build
