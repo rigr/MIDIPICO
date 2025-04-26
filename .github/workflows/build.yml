@@ -28,6 +28,8 @@ jobs:
         ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
         ls -la lib/pio_midi_uart_lib || echo "pio_midi_uart_lib directory missing or empty"
         find lib/pio_midi_uart_lib -type f
+        cat lib/pio_midi_uart_lib/CMakeLists.txt
+        cat CMakeLists.txt
         git submodule status
     - name: Install dependencies
       run: |
@@ -39,7 +41,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake ..
+        cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON
         make
     - name: Upload artifact
       uses: actions/upload-artifact@v4
