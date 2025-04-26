@@ -143,7 +143,7 @@ int main(void)
     tusb_init();
 
     // DIN-MIDI-Portpaare erzeugen
-    din_midi[0] = pio_midi_uart_create(DIN_MIDI_RX_1, DIN_MIDI_RX_1)
+    din_midi[0] = pio_midi_uart_create(DIN_MIDI_RX_1, DIN_MIDI_RX_1);
     din_midi[1] = pio_midi_uart_create(DIN_MIDI_RX_2, DIN_MIDI_RX_2);
     din_midi[2] = pio_midi_uart_create(DIN_MIDI_RX_3, DIN_MIDI_RX_3);
     din_midi[3] = pio_midi_uart_create(DIN_MIDI_RX_4, DIN_MIDI_RX_4);
@@ -153,9 +153,9 @@ int main(void)
 
     // Core 0: Polling-Loop für USB-Device (Gast)
     while (1) {
-        tud_task();
+        tuh_task();
         uint8_t rx_buf[MIDI_BUFFER_SIZE];
-        uint32_t rx_len = tud_midi_read(rx_buf, MIDI_BUFFER_SIZE);
+        uint32_t rx_len = tuh_midi_receive(rx_buf, MIDI_BUFFER_SIZE);
         if (rx_len) send_midi_to_all(rx_buf, rx_len);
     }
 
