@@ -16,6 +16,7 @@ jobs:
         ls -la lib/
         ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
         ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
+        ls -la lib/pio_midi_uart_lib || echo "pio_midi_uart_lib directory missing or empty"
         git submodule status
     - name: Install dependencies
       run: |
