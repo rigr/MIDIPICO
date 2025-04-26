@@ -16,8 +16,11 @@ jobs:
       run: |
         git submodule sync
         git submodule update --init --recursive --force
-        git submodule foreach git checkout main
-        git submodule foreach git pull origin main
+        # Spezifische Branch-Checkouts für Submodule
+        cd lib/pico-sdk && git checkout master && cd ../..
+        cd lib/pio_midi_uart_lib && git checkout main && cd ../..
+        cd lib/ring_buffer_lib && git checkout main && cd ../..
+        cd lib/tinyusb && git checkout master && cd ../..
     - name: Debug Submodules
       run: |
         ls -la lib/
