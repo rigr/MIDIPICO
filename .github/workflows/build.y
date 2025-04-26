@@ -15,6 +15,7 @@ jobs:
       run: |
         ls -la lib/
         ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
+        ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
         git submodule status
     - name: Install dependencies
       run: |
