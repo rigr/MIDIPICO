@@ -14,6 +14,7 @@ target_include_directories(midipico PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib
     ${CMAKE_CURRENT_LIST_DIR}/lib/ring_buffer_lib
+    ${CMAKE_CURRENT_LIST_DIR}/lib/tinyusb/src
 )
 target_link_libraries(midipico
     pico_stdlib
