@@ -51,6 +51,10 @@ void core1_entry(void) {
             uint32_t rx_len = tuh_midi_receive(host2_dev_addr, rx_buf, MIDI_BUFFER_SIZE, true);
             if (rx_len > 0) {
                 tud_midi_packet_write(0, rx_buf, rx_len);
+                for (int i = 0; i < 4; i++) {
+                    pio_midi_uart_write_tx_buffer(&din_midi[i], rx_buf, rx_len);
+                    pio_midi_uart_drain_tx_buffer(&din_midi[i]);
+                }
             }
         }
         // DIN-MIDI
