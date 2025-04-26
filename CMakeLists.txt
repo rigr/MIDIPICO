@@ -27,4 +27,4 @@ target_link_libraries(midipico
     ring_buffer_lib
 )
 pico_add_extra_outputs(midipico)
-pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/lib/pio_midi_uart_lib/midi_uart.pio)
+pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/midi_uart.pio)
