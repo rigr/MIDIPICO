@@ -1,6 +1,7 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "tusb.h"
+#include "class/midi/midi_host.h" // Für tuh_midi_ Funktionen
 #include "pio_midi_uart_lib.h"
 
 // Konfigurationskonstanten
@@ -17,7 +18,7 @@
 // Globale Variablen
 static uint8_t host1_dev_addr = 0; // Geräteadresse für Host 1
 static uint8_t host2_dev_addr = 0; // Geräteadresse für Host 2
-static pio_midi_uart_t din_midi[4]; // DIN-MIDI-Anschlüsse
+static pio_midi_uart_t* din_midi[4]; // DIN-MIDI-Anschlüsse (Zeiger-Array)
 
 // Hilfsfunktion: Konvertiert MIDI-Daten in 4-Byte-Pakete
 static void send_midi_packet(uint8_t dev_addr, uint8_t *data, uint32_t len) {
@@ -25,7 +26,7 @@ static void send_midi_packet(uint8_t dev_addr, uint8_t *data, uint32_t len) {
         if (i + 2 >= len) break; // Unvollständige Nachricht ignorieren
         uint8_t packet[4] = { 0x0B, data[i], data[i + 1], data[i + 2] }; // CIN=0xB (Note On/Off)
         if (dev_addr) {
-            tuh_midi_packet_write(dev_addr, packet);
+            tuh_midi_packet_write(packet, dev_addr);
         } else {
             tud_midi_packet_write(packet);
         }
@@ -48,18 +49,18 @@ void core1_entry(void) {
     while (true) {
         // Host 2
         if (host2_dev_addr) {
-            uint32_t rx_len = tuh_midi_receive(host2_dev_addr, rx_buf, MIDI_BUFFER_SIZE, true);
+            uint32_t rx_len = tuh_midi_stream_read(host2_dev_addr, rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
                 send_midi_packet(0, rx_buf, rx_len); // Zum Device
                 for (int i = 0; i < 4; i++) {
-                    pio_midi_uart_write_tx_buffer(&din_midi[i], rx_buf, rx_len);
-                    pio_midi_uart_drain_tx_buffer(&din_midi[i]);
+                    pio_midi_uart_write_tx_buffer(din_midi[i], rx_buf, rx_len);
+                    pio_midi_uart_drain_tx_buffer(din_midi[i]);
                 }
             }
         }
         // DIN-MIDI
         for (int i = 0; i < 4; i++) {
-            uint32_t rx_len = pio_midi_uart_poll_rx_buffer(&din_midi[i], rx_buf, MIDI_BUFFER_SIZE);
+            uint32_t rx_len = pio_midi_uart_poll_rx_buffer(din_midi[i], rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
                 if (host1_dev_addr) send_midi_packet(host1_dev_addr, rx_buf, rx_len);
                 if (host2_dev_addr) send_midi_packet(host2_dev_addr, rx_buf, rx_len);
@@ -68,11 +69,11 @@ void core1_entry(void) {
         }
         // USB-MIDI-Device (Empfang)
         while (tud_midi_packet_read(packet)) {
-            if (host1_dev_addr) tuh_midi_packet_write(host1_dev_addr, packet);
-            if (host2_dev_addr) tuh_midi_packet_write(host2_dev_addr, packet);
+            if (host1_dev_addr) tuh_midi_packet_write(packet, host1_dev_addr);
+            if (host2_dev_addr) tuh_midi_packet_write(packet, host2_dev_addr);
             for (int i = 0; i < 4; i++) {
-                pio_midi_uart_write_tx_buffer(&din_midi[i], &packet[1], 3);
-                pio_midi_uart_drain_tx_buffer(&din_midi[i]);
+                pio_midi_uart_write_tx_buffer(din_midi[i], &packet[1], 3);
+                pio_midi_uart_drain_tx_buffer(din_midi[i]);
             }
         }
         sleep_ms(1);
@@ -102,22 +103,22 @@ int main() {
 
         // USB-MIDI-Daten von Host 1 lesen
         if (host1_dev_addr) {
-            uint32_t rx_len = tuh_midi_receive(host1_dev_addr, rx_buf, MIDI_BUFFER_SIZE, true);
+            uint32_t rx_len = tuh_midi_stream_read(host1_dev_addr, rx_buf, MIDI_BUFFER_SIZE);
             if (rx_len > 0) {
                 send_midi_packet(0, rx_buf, rx_len); // Zum Device
                 for (int i = 0; i < 4; i++) {
-                    pio_midi_uart_write_tx_buffer(&din_midi[i], rx_buf, rx_len);
-                    pio_midi_uart_drain_tx_buffer(&din_midi[i]);
+                    pio_midi_uart_write_tx_buffer(din_midi[i], rx_buf, rx_len);
+                    pio_midi_uart_drain_tx_buffer(din_midi[i]);
                 }
             }
         }
         // USB-MIDI-Device (Empfang)
         while (tud_midi_packet_read(packet)) {
-            if (host1_dev_addr) tuh_midi_packet_write(host1_dev_addr, packet);
-            if (host2_dev_addr) tuh_midi_packet_write(host2_dev_addr, packet);
+            if (host1_dev_addr) tuh_midi_packet_write(packet, host1_dev_addr);
+            if (host2_dev_addr) tuh_midi_packet_write(packet, host2_dev_addr);
             for (int i = 0; i < 4; i++) {
-                pio_midi_uart_write_tx_buffer(&din_midi[i], &packet[1], 3);
-                pio_midi_uart_drain_tx_buffer(&din_midi[i]);
+                pio_midi_uart_write_tx_buffer(din_midi[i], &packet[1], 3);
+                pio_midi_uart_drain_tx_buffer(din_midi[i]);
             }
         }
     }
