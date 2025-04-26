@@ -24,7 +24,7 @@ target_include_directories(midipico PUBLIC
 )
 
 # Link libraries
-target_link_libraries(midipico
+target_link_libraries(midipico PUBLIC
     pico_stdlib
     pico_multicore
     hardware_i2c
