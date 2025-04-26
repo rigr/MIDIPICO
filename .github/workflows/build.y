@@ -11,6 +11,11 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
+    - name: Debug Submodules
+      run: |
+        ls -la lib/
+        ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
+        git submodule status
     - name: Install dependencies
       run: |
         sudo apt update
