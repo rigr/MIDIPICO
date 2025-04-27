@@ -36,6 +36,9 @@ target_link_libraries(midipico PUBLIC
     ring_buffer_lib
 )
 
+# Explicit dependency to ensure pio_midi_uart_lib is built first
+add_dependencies(midipico pio_midi_uart_lib)
+
 # Generate extra outputs
 pico_add_extra_outputs(midipico)
 
