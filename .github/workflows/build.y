@@ -22,14 +22,10 @@ jobs:
     - name: Debug Submodules and Local Copy
       run: |
         ls -la lib/
-        ls -la lib/pico-sdk || echo "pico-sdk directory missing"
-        ls -la lib/ring_buffer_lib || echo "ring_buffer_lib directory missing"
-        ls -la lib/tinyusb || echo "tinyusb directory missing"
-        ls -la lib/local_pio_midi_uart || echo "local_pio_midi_uart directory missing"
-        find lib/local_pio_midi_uart -type f
+        ls -la lib/local_pio_midi_uart
         cat lib/local_pio_midi_uart/CMakeLists.txt
         cat CMakeLists.txt
-        git submodule status
+        find . -name pio_midi_uart.pio.h
     - name: Install dependencies
       run: |
         sudo apt update
