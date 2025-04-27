@@ -16,17 +16,16 @@ jobs:
       run: |
         git submodule sync --recursive
         git submodule update --init --recursive --force
-        # Spezifische Branch-Checkouts für Submodule
         cd lib/pico-sdk && git checkout master && cd ../..
         cd lib/ring_buffer_lib && git checkout main && cd ../..
         cd lib/tinyusb && git checkout master && cd ../..
     - name: Debug Submodules and Local Copy
       run: |
         ls -la lib/
-        ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
-        ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
-        ls -la lib/ring_buffer_lib || echo "ring_buffer_lib directory missing or empty"
-        ls -la lib/local_pio_midi_uart || echo "local_pio_midi_uart directory missing or empty"
+        ls -la lib/pico-sdk || echo "pico-sdk directory missing"
+        ls -la lib/ring_buffer_lib || echo "ring_buffer_lib directory missing"
+        ls -la lib/tinyusb || echo "tinyusb directory missing"
+        ls -la lib/local_pio_midi_uart || echo "local_pio_midi_uart directory missing"
         find lib/local_pio_midi_uart -type f
         cat lib/local_pio_midi_uart/CMakeLists.txt
         cat CMakeLists.txt
@@ -41,7 +40,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON
+        cmake ..
         make
     - name: Upload artifact
       uses: actions/upload-artifact@v4
