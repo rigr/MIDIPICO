@@ -14,7 +14,7 @@ jobs:
         fetch-depth: 0
     - name: Update Submodules
       run: |
-        git submodule sync
+        git submodule sync --recursive
         git submodule update --init --recursive --force
         # Spezifische Branch-Checkouts für Submodule
         cd lib/pico-sdk && git checkout master && cd ../..
@@ -25,6 +25,7 @@ jobs:
         ls -la lib/
         ls -la lib/pico-sdk || echo "pico-sdk directory missing or empty"
         ls -la lib/tinyusb || echo "tinyusb directory missing or empty"
+        ls -la lib/ring_buffer_lib || echo "ring_buffer_lib directory missing or empty"
         ls -la lib/local_pio_midi_uart || echo "local_pio_midi_uart directory missing or empty"
         find lib/local_pio_midi_uart -type f
         cat lib/local_pio_midi_uart/CMakeLists.txt
