@@ -19,6 +19,7 @@ add_executable(midipico
 target_include_directories(midipico PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/lib/local_pio_midi_uart
+    ${CMAKE_CURRENT_BINARY_DIR}/lib/local_pio_midi_uart
     ${CMAKE_CURRENT_LIST_DIR}/lib/ring_buffer_lib
     ${CMAKE_CURRENT_LIST_DIR}/lib/tinyusb/src
 )
@@ -36,11 +37,8 @@ target_link_libraries(midipico PUBLIC
     ring_buffer_lib
 )
 
-# Explicit dependency to ensure pio_midi_uart_lib is built first
+# Explicit dependency
 add_dependencies(midipico pio_midi_uart_lib)
 
 # Generate extra outputs
 pico_add_extra_outputs(midipico)
-
-# Generate PIO header for midipico
-pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/lib/local_pio_midi_uart/pio_midi_uart.pio)
