@@ -1,0 +1,12 @@
+[submodule "lib/pico-sdk"]
+    path = lib/pico-sdk
+    url = https://github.com/raspberrypi/pico-sdk.git
+    branch = master
+[submodule "lib/ring_buffer_lib"]
+    path = lib/ring_buffer_lib
+    url = https://github.com/rppicomidi/ring_buffer_lib.git
+    branch = main
+[submodule "lib/tinyusb"]
+    path = lib/tinyusb
+    url = https://github.com/hathach/tinyusb.git
+    branch = master
