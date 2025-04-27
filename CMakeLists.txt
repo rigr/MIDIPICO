@@ -39,5 +39,5 @@ target_link_libraries(midipico PUBLIC
 # Generate extra outputs
 pico_add_extra_outputs(midipico)
 
-# Generate PIO header
+# Generate PIO header for midipico
 pico_generate_pio_header(midipico ${CMAKE_CURRENT_LIST_DIR}/lib/local_pio_midi_uart/pio_midi_uart.pio)
